@@ -1,38 +1,52 @@
 import React from "react";
 
 class Books extends React.Component {
-  
+
+    state = {
+        shelfs: [
+            {label: 'Currently Reading', value: 'currentlyReading'},
+            {label: 'Want to Read', value: 'wantToRead'},
+            {label: 'Read', value: 'read'},
+            {label: 'None', value: 'none'},
+        ]
+    }
     render() {
  
     const {title, books, onUpdateBook} = this.props;
+    const {shelfs} = this.state;
 
     return (
       <div className="bookshelf">
         <h2 className="bookshelf-title">{title}</h2>
         <div className="bookshelf-books">
           <ol className="books-grid">
-            {books.map((book) => (
-              <li key={book.id}>
-                <div className="book">
-                  <div className="book-top">
-                    <div className="book-cover" style={{width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})`}} />
-                    <div className="book-shelf-changer">
-                      <select onChange={(event) => onUpdateBook(book, event.target.value)}>
-                        <option value="move">
-                          Move to...
-                        </option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="book-title">{book.title}</div>
-                  <div className="book-authors">{book.authors}</div>
-                </div>
-              </li>
-            ))}
+            {books && books.length > 0 ?
+                books.map((book) => (
+                    <li key={book.id} data-shelf={book.hasOwnProperty('shelf') ? '' : book.shelf = 'none'}>
+                      <div className="book">
+                        <div className="book-top">
+                          <div className="book-cover" style={{width: 128, height: 193, backgroundImage:`url(${book.imageLinks && book.imageLinks.thumbnail?`${book.imageLinks.thumbnail}`:`http://via.placeholder.com/128x193?text=No%20Cover`})`}} />
+                          <div className="book-shelf-changer">
+                            <select value={book.shelf} onChange={(event) => onUpdateBook(book, event.target.value)}>
+                                <option value="move" disabled>
+                                Move to...
+                                </option>
+                                {shelfs.map(shelf => 
+                                    <option 
+                                        key={shelf.value} 
+                                        value={shelf.value} 
+                                        selected={book.shelf === shelf.value}>{shelf.label}
+                                    </option>
+                                )}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="book-title">{book.title}</div>
+                        <div className="book-authors">{book.authors ? book.authors.join(', ') : ''}</div>
+                      </div>
+                    </li>
+                )) : ''
+            }
           </ol>
         </div>
       </div>

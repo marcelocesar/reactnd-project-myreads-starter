@@ -12,18 +12,18 @@ class SearchBook extends React.Component {
 
     updateQuery = (query) => {
         this.setState({ 
-            query: query.trim(),
+            query: query,
         });
         this.searchBook(this.state.query)
     }
 
     searchBook(query) {
-
         this.props.onSearchBook(query).then((bookResults) => {
             this.setState({
-                searchBooks: bookResults
+                searchBooks: bookResults ? bookResults : []
             })
         })
+        
     }
 
     clearQuery = () => {
@@ -58,13 +58,15 @@ class SearchBook extends React.Component {
                     </div>
                 </div>
                 <div className="search-books-results">
-                    { this.state.searchBooks && (
-                        <Books 
-                        title="" 
-                        books={showingBooks}
-                        onUpdateBook={onUpdateBook}
-                        />
-                    )}
+                    { query ? 
+                        (showingBooks.length > 0 ?
+                            <Books 
+                                title="" 
+                                books={showingBooks}
+                                onUpdateBook={onUpdateBook}
+                            />
+                        : 'livro nao encontrado') : ''
+                    }
                 </div>
             </div>
         )
