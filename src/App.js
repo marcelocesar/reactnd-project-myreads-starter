@@ -11,20 +11,27 @@ class BooksApp extends React.Component {
     books: []
   };
 
-  componentDidMount() {
-    this.initBooksList();
-  }
-
-  initBooksList() {
-    BooksAPI.getAll().then(books => {
+  async componentDidMount() {
+    await BooksAPI.getAll().then(books => {
       this.setState({books});
     });
   }
 
   updateBook = (book, shelf) => {
-    BooksAPI.update(book, shelf).then(book => {
-      this.initBooksList();
-    });
+
+    BooksAPI.update(book, shelf);
+
+    book.shelf = shelf;  
+
+    if(this.state.books.filter((b) => b.id === book.id)){
+      this.setState((state) => ({
+        books: state.books.filter((b) => b.id !== book.id)
+      }))
+    } 
+
+    this.setState(state => ({
+      books: state.books.filter(b => b.id !== book.id).concat([ book ])
+    }))
   };
 
   searchBook = (query) => {
@@ -32,7 +39,8 @@ class BooksApp extends React.Component {
   };
 
   render() {
-    const {books} = this.state;
+    const filter = (books) => shelf => books.filter(b => b.shelf === shelf)
+    const filterBy = filter(this.state.books)
 
     return (
       <div className="app">
@@ -58,17 +66,17 @@ class BooksApp extends React.Component {
                 <div>
                   <Books 
                     title="Currently Reading" 
-                    books={books.filter(b => b.shelf === "currentlyReading")} 
+                    books={filterBy('currentlyReading')} 
                     onUpdateBook={this.updateBook} 
                   />
                   <Books 
                     title="Want to Read" 
-                    books={books.filter(b => b.shelf === "wantToRead")} 
+                    books={filterBy('wantToRead')} 
                     onUpdateBook={this.updateBook}
                   />
                   <Books 
                     title="Read" 
-                    books={books.filter(b => b.shelf === "read")} 
+                    books={filterBy('read')} 
                     onUpdateBook={this.updateBook}
                   />
                 </div>
